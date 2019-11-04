@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2
+      author: pavel_hrynchanka
+      changes:
+        - createTable:
+            tableName: query_performance
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: query_id
+                  type: bigint
+                  constraints:
+                    refernces: query(id)
+              - column:
+                  name: database
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: type
+                  type: varchar(20)
+                  constraints:
+                    nullable: false

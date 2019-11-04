@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/liquibase/28_10_2019_query.yaml
+  - include:
+      file: db/changelog/liquibase/28_10_2019_query_performance.yaml
+  - include:
+      file: db/changelog/liquibase/28_10_2019_query_performance_history.yaml

@@ -1,0 +1,63 @@
+spring:
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      maximum-pool-size: 10
+      pool-name: "local-connections"
+    driver-class-name: ${db.drivers.postgresql}
+    url: jdbc:postgresql://localhost:5432/querydb
+    password: pwd
+    username: postgres
+  h2:
+    console:
+      enabled: true
+  jpa:
+    database: postgresql
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+  task:
+    scheduling:
+      pool:
+        size: 1
+      thread-name-prefix: query-poller
+    execution:
+      thread-name-prefix: async-query-measure
+      pool:
+        core-size: 4
+        max-size: 4
+        queue-capacity: 1024
+poller:
+  fixed-delay: 10000
+
+db:
+  drivers:
+    mssql: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    postgresql: org.postgresql.Driver
+    h2: org.h2.Driver
+    mysql: com.mysql.cj.jdbc.Driver
+  remotes:
+    perf_postgresql:
+      jdbcUrl: jdbc:postgresql://localhost:5432/perf_postgresql
+      driver-class-name: ${db.drivers.postgresql}
+      password: pwd
+      username: postgres
+      maximum-pool-size: 1
+      poolName: perf_0-db-pool
+
+    perf_mssql_1:
+      jdbcUrl: jdbc:sqlserver://localhost:1433;DatabaseName=perf_mssql_1
+      driver-class-name: ${db.drivers.mssql}
+      password: Password123
+      username: sa
+      maximum-pool-size: 1
+      poolName: perf_mssql_1-db-pool
+
+    perf_mssql_2:
+      jdbcUrl: jdbc:sqlserver://localhost:1433;DatabaseName=perf_mssql_2
+      driver-class-name: ${db.drivers.mssql}
+      password: Password123
+      username: sa
+      maximum-pool-size: 1
+      poolName: perf_mssql_2-db-pool
+server:
+  port: 8081
