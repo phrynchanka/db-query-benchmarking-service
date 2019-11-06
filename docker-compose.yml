@@ -1,0 +1,129 @@
+version: '3.7'
+
+services:
+  postgres-querydb:
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=pwd
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=querydb
+    volumes:
+      - postgres-querydb-data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  postgres-remote-1:
+    image: postgres:latest
+    ports:
+      - 5433:5432
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=pwd
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=perf
+    volumes:
+      - postgres-remote-1-data:/var/lib/postgresql/data
+      - ./integration-test/sql/init-data.sql:/docker-entrypoint-initdb.d/init-data.sql
+    networks:
+      - backend
+
+  postgres-remote-2:
+    image: postgres:latest
+    ports:
+      - 5434:5432
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=pwd
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=perf
+    volumes:
+      - postgres-remote-2-data:/var/lib/postgresql/data
+      - ./integration-test/sql/init-data.sql:/docker-entrypoint-initdb.d/init-data.sql
+    networks:
+      - backend
+
+  mysql-remote-1:
+    image: mysql:5.7
+    ports:
+      - 3306:3306
+    restart: always
+    environment:
+      - MYSQL_DATABASE=perf
+      - MYSQL_USER=mysql
+      - MYSQL_PASSWORD=pwd
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - mysql-remote-1-data:/var/lib/mysql
+      - ./integration-test/sql/init-data.sql:/docker-entrypoint-initdb.d/init-data.sql
+    networks:
+      - backend
+
+  app:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    ports:
+      - 8081:8081
+    restart: always
+    depends_on:
+      - postgres-querydb
+      - postgres-remote-1
+      - postgres-remote-2
+      - mysql-remote-1
+    volumes:
+      - ./logs:/app/logs
+    environment:
+      SPRING_APPLICATION_JSON: '{
+        "logging": {
+          "file": "logs/app.log"
+        },
+        "spring": {
+          "datasource": {
+            "url": "jdbc:postgresql://postgres-querydb:5432/querydb",
+            "password": "pwd",
+            "username": "postgres"
+          }
+        },
+        "db": {
+          "remotes": {
+            "postgres-remote-1": {
+              "jdbcUrl": "jdbc:postgresql://postgres-remote-1:5432/perf",
+              "password": "pwd",
+              "username": "postgres",
+              "maximum-pool-size": 1,
+              "poolName": "postgres-remote-1-pool",
+              "driver-class-name": "org.postgresql.Driver"
+            },
+            "postgres-remote-2": {
+              "jdbcUrl": "jdbc:postgresql://postgres-remote-2:5432/perf",
+              "password": "pwd",
+              "username": "postgres",
+              "maximum-pool-size": 1,
+              "poolName": "postgres-remote-2-pool",
+              "driver-class-name": "org.postgresql.Driver"
+            },
+            "mysql-remote-1": {
+              "jdbcUrl": "jdbc:mysql://mysql-remote-1:3306/perf",
+              "password": "pwd",
+              "username": "mysql",
+              "maximum-pool-size": 1,
+              "poolName": "mysql-remote-1-pool",
+              "driver-class-name": "com.mysql.cj.jdbc.Driver"
+            }
+          }
+        }
+      }'
+    networks:
+      - backend
+
+volumes:
+  postgres-querydb-data:
+  postgres-remote-1-data:
+  postgres-remote-2-data:
+  mysql-remote-1-data:
+
+networks:
+  backend:

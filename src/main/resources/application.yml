@@ -3,14 +3,11 @@ spring:
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
       maximum-pool-size: 10
-      pool-name: "local-connections"
+      pool-name: "local-pool"
     driver-class-name: ${db.drivers.postgresql}
-    url: jdbc:postgresql://localhost:5432/querydb
+    url: jdbc:postgresql://postgres-querydb:5432/querydb
     password: pwd
     username: postgres
-  h2:
-    console:
-      enabled: true
   jpa:
     database: postgresql
   liquibase:
@@ -35,29 +32,6 @@ db:
     postgresql: org.postgresql.Driver
     h2: org.h2.Driver
     mysql: com.mysql.cj.jdbc.Driver
-  remotes:
-    perf_postgresql:
-      jdbcUrl: jdbc:postgresql://localhost:5432/perf_postgresql
-      driver-class-name: ${db.drivers.postgresql}
-      password: pwd
-      username: postgres
-      maximum-pool-size: 1
-      poolName: perf_0-db-pool
 
-    perf_mssql_1:
-      jdbcUrl: jdbc:sqlserver://localhost:1433;DatabaseName=perf_mssql_1
-      driver-class-name: ${db.drivers.mssql}
-      password: Password123
-      username: sa
-      maximum-pool-size: 1
-      poolName: perf_mssql_1-db-pool
-
-    perf_mssql_2:
-      jdbcUrl: jdbc:sqlserver://localhost:1433;DatabaseName=perf_mssql_2
-      driver-class-name: ${db.drivers.mssql}
-      password: Password123
-      username: sa
-      maximum-pool-size: 1
-      poolName: perf_mssql_2-db-pool
 server:
   port: 8081
