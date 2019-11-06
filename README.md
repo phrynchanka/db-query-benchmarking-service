@@ -1,11 +1,38 @@
- ##Implementation notes
+## Implementation notes
 
-###Run application
+### Run application
 ```bash
 mvn spring-boot:run
 ```
 
-####Tested databases configuration
+### Run integration test via docker
+
+Required tools: `mvn`, `docker`, `docker-compose`.
+
+- Test run 4 db services and 1 app service.
+- Init remotes db with initial data.
+- Wait until service is available.
+- Post query for performace measure.
+- Request report.
+
+`docker-compose` contains:
+```
+app
+postgres-querydb-data
+
+postgres-remote-1-data
+postgres-remote-1-data
+mysql-remote-1-data
+```
+
+From project directory run:
+```bash
+chmod +x run.sh
+./run.sh
+```
+ 
+
+#### Tested databases configuration
 
 It is possible to add databases or modify existed. 
 
@@ -45,7 +72,7 @@ remotes:
       poolName: perf_mssql_2-db-pool
 ```
 
-####Query performance test request
+#### Query performance test request
 
 ```bash
 curl -X POST \
@@ -69,7 +96,7 @@ curl -X POST \
 ]'
 ```
 
-####Report by query name
+#### Report by query name
 
 ```bash
 curl -X GET http://localhost:8081/report/select_1
